@@ -135,24 +135,31 @@ class Story:
     def __init__(self):
         self.times=[]
         self.actions=[]
-        
     def add(self,t,name,**info):
         self.times.insert(0,t)
         self.actions.insert(0,(name,info))
-        
-    def __getitem__(self,i):
+    def __iter__(self):
         for (pos,t) in enumerate(self.times):
+            yield t,self.actions[pos]  
+    def __getitem__(self,i):
+        for t,act in self:
             if t<=i:
-                return t,self.actions[pos]#HERE THE LAST CHANGE
+                return t,act#HERE THE LAST CHANGE
         return None,(None,)
+    def reverse_iter(self):
+        pos=len(self.times)
+        while pos>0:
+            pos-=1
+            yield self.times[pos],self.actions[pos]
     def __str__(self):
         out=str()
-        for (pos,t) in enumerate(self.times):
-            out+="begin at {} to {} ".format(t,self.actions[pos])
+        for t,act in self.reverse_iter():
+            out+="begin at {} to {} ".format(t,act)
             out+='\n'
         return out
-    def __iter__(self):
-        return self.actions.__iter__()
+    
+    
+            
 
     
 
