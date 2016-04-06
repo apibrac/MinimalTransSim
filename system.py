@@ -143,8 +143,8 @@ class Story:
     def __getitem__(self,i):
         for (pos,t) in enumerate(self.times):
             if t<=i:
-                return self.actions[pos],t#HERE THE LAST CHANGE
-        return (None,),None
+                return t,self.actions[pos]#HERE THE LAST CHANGE
+        return None,(None,)
     def __str__(self):
         out=str()
         for (pos,t) in enumerate(self.times):
