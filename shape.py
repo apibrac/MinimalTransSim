@@ -15,7 +15,16 @@ import matplotlib.patches as patch
 
 #Basic envelopes
 class Network:
-    def __init__(self,position_generator,travel_time,travel_distance,gpatch,Xsize=None,Ysize=None):
+    """Network for a simulation:
+    position_generator - > function without parameter that randomly give a position in the network
+    travel_time - > travel_time(O,D) is the typical time to travel from O=(Ox,Oy) to D
+    travel_distance - > travel_distance(t) is the typical distance made in during time t
+    
+    optionals for the draw :
+    gpatch - > the patch of the network to be drawn, see matplotlib.patches
+    Xsize - > (xmin,xmax) minimum and maximum of the network in X axe
+    Ysize - > same for Y"""
+    def __init__(self,position_generator,travel_time,travel_distance,gpatch=None,Xsize=None,Ysize=None):
         self.position_generator=position_generator
         self.travel_time=travel_time
         self.get_patch=gpatch
@@ -25,6 +34,9 @@ class Network:
         
         
 class Timer:
+    """Timer for the simulation
+    Need a last_departure time
+    Store the finishing time"""
     def __init__(self,last_departure):
         self.last_departure=last_departure
         self.finish_time=last_departure

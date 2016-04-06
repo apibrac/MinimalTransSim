@@ -10,13 +10,14 @@ from functools import total_ordering
 
 #the simulation object (center of everything)
 class Simulation():
-    """Simulation class: gather all information for a simulation and the event queue"""
-    def __init__(self,network,timer):
+    """Simulation class: gather all information for a simulation and the event queue
+    Need a network and a timer, see shape.py"""
+    def __init__(self,network,timer,action=None):
         """Need a network and a timer"""
         self.q=PriorityQueue()
         self.network=network
         self.timer=timer
-        self.action=None
+        self.action=action
     def __call__(self):
         """to run the simulation from events already stored"""
         while not self.q.empty():
@@ -64,6 +65,8 @@ class MetaEvent(type):
     
 @total_ordering
 class Event(metaclass=MetaEvent):
+    """Event classes need a method run(self,simulation) that puts all other outputs events in the simulation
+    Events objects need a time at initialization"""
     def __lt__(self,other):
         return self.time < other.time
     def __eq__(self,other):
@@ -148,6 +151,8 @@ class Story:
             out+="begin at {} to {} ".format(t,self.actions[pos])
             out+='\n'
         return out
+    def __iter__(self):
+        return self.actions.__iter__()
 
     
 
