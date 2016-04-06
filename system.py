@@ -11,15 +11,25 @@ from functools import total_ordering
 #the simulation object (center of everything)
 class Simulation():
     """Simulation class: gather all information for a simulation and the event queue
-    Need a network and a timer, see shape.py"""
+    
+    Need a network and a timer, see shape.py
+    can set an optional action to execute before each event is computed
+    
+    Is a callable for the execution of the simulation
+    Is iterable to go throught all agents"""
     def __init__(self,network,timer,action=None):
         """Need a network and a timer"""
         self.q=PriorityQueue()
         self.network=network
         self.timer=timer
         self.action=action
+        self.agents=[]
     def __call__(self):
-        """to run the simulation from events already stored"""
+        """First compute all agents inside itself
+        then run all events stored (still inside itself)
+        an optional function can be applied on events before they are computed"""
+        for a in self.agents:
+            a.compute(self)
         while not self.q.empty():
             e=self.q.get()
             if self.action is not None:
@@ -30,14 +40,13 @@ class Simulation():
         self.q.put(ev)
         self.timer.one_more_time(ev.time)
     def add(self,l):
-        """add a new agent's events in the queue
-        call the function "compute" of all agents in the list"""
-        self.agents=l
-        for a in self.agents:
-            a.compute(self)
+        """add a new agent in the simulation"""
+        self.agents.append(l)
     def set_action(self,act):
         """define a new (optional) action to do when execute events, such as print"""
         self.action=act
+    def __iter__(self):
+        return self.agents.__iter__()
     
 
 
@@ -101,12 +110,18 @@ class MetaAgent(type):
 
 class Agent(metaclass=MetaAgent):
     """Class for agents in the simulation
-    
+        
+        Agent classes :
         -need a function compute(self,simulation)
         
         -can have a constructor
                 or
-        -can use the Agent constructor: just fill the class attributes "attributes" and "options" """
+        -can use the Agent constructor: just fill the class attributes "attributes" and "options" 
+        
+        Agent objects:
+        can add an action in the story by a simple call AGENT_NAME(time,action,**kwargs)
+        automatically has a unique id_number
+        """
     options={}
     attributes=[]
     total_count=1
@@ -131,7 +146,14 @@ class Agent(metaclass=MetaAgent):
 
 
 class Story:
-    """story of the movement of an agent, middle between dict and list"""
+    """story of the movement of an agent, middle between dict and list
+    actions are stored in a reverse order in a matter of access: first action to have a time smaller than t is the action executed during t
+    
+    Is an iterable objects that send back (beginingTime,(actionName,**options)) for all actions
+    Can get the action executed at time t with story_name[t]
+    
+    Reverse_iter can be used to explore actions in the normal order
+    It is used for the __str__ function"""
     def __init__(self):
         self.times=[]
         self.actions=[]
