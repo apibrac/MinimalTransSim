@@ -13,7 +13,7 @@ import time
 
 #to write the time
 def format_time(t):#in seconds
-    if t//3600>0:
+    if t//3600>0:#several hours:
         return "{}:{:02d}:{:02d}".format(int(t//3600),int((t%3600)//60),int(t%60))
     return "{:2d}:{:05.2f}".format(int(t//60),t%60)
 
@@ -61,7 +61,7 @@ class Drawing():
             real_time=frame*self.time_interval*self.time_coef/1000
             self.update_from_t(ob,real_time)
             rl=time.time()-lt
-            time_text.set_text("sl: "+format_time(real_time)+"\nsd:"+format_time(frame*self.time_interval/1000)+"\nrl: "+format_time(rl))
+            time_text.set_text("In simu: "+format_time(real_time)+"\nDraw:"+format_time(frame*self.time_interval/1000)+"\nR life: "+format_time(rl))
             return tuple(ob+[time_text])
         return function_out
     def __call__(self):
