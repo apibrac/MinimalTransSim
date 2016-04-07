@@ -90,7 +90,7 @@ class Event(metaclass=MetaEvent):
 
  #meta class for agents
 class MetaAgent(type):
-    """Metaclass for agents: to store the llist of possible kind"""
+    """Metaclass for agents: to store the list of possible kind"""
     def __new__(metacls,nom,base,dico):
         if "__init__" in dico:
             def wrapper(func):
@@ -119,6 +119,7 @@ class Agent(metaclass=MetaAgent):
         -can use the Agent constructor: just fill the class attributes "attributes" and "options" 
         
         Agent objects:
+        CREATION : type Agent_type.attributes and Agent_type.options to see required fields
         can add an action in the story by a simple call AGENT_NAME(time,action,**kwargs)
         automatically has a unique id_number
         """
