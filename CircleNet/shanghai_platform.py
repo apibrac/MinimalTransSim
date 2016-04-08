@@ -1,13 +1,16 @@
 
-from CircleNet.system import *
+from CircleNet.system import Event, Agent, Simulation
 
 # the algo module (detailed)
-class MatchingAlgorithm1:
+class MatchingPlatform:
     """Store all passenger announces
     When a driver look for a passenger, compute and send the list of coherent announces (based on window time)
     When a match is made delete the announce
     
-    Proximity is not watched"""
+    Proximity is not watched
+    
+    NEED: "Driver" & "Passenger":
+        print(Driver.attributes), print(Passenger.attributes)"""
     def __init__(self,benefits_function,simu):
         self.passengerList={}
         self.benefits=benefits_function

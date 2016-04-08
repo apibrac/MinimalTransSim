@@ -1,6 +1,6 @@
 #DRAWING SETTINGS
-from CircleNet.drawing import *
-from CircleNet.shanghai_platform import *
+import CircleNet.drawing
+import CircleNet.shanghai_platform as platform
 
 def position(agent,t,network):
     to,action=agent.story[t]
@@ -29,9 +29,9 @@ def updateFrom(simulation):
         p=[]
         d=[]
         for agent in simulation:
-            if isinstance(agent,Passenger):
+            if isinstance(agent,platform.Passenger):
                 p.append(position(agent,t,simulation.network))
-            if isinstance(agent,Driver):
+            if isinstance(agent,platform.Driver):
                 d.append(position(agent,t,simulation.network))
         if p:
             x=[x[0] for x in p if x is not None]
@@ -45,4 +45,4 @@ def updateFrom(simulation):
     return update
 
 def Positions_drawing(simu):
-    return Drawing_from_simulation(simu,create_objects,updateFrom(simu))
+    return CircleNet.drawing.Drawing_from_simulation(simu,create_objects,updateFrom(simu))
