@@ -17,12 +17,12 @@ class Simulation():
     
     Is a callable for the execution of the simulation
     Is iterable to go throught all agents"""
-    def __init__(self,network,timer,action=None):
+    def __init__(self,network,timer,actions=None):
         """Need a network and a timer"""
         self.q=PriorityQueue()
         self.network=network
         self.timer=timer
-        self.action=action
+        self.actions=actions
         self.agents=[]
     def __call__(self):
         """First compute all agents inside itself
@@ -32,8 +32,9 @@ class Simulation():
             a.compute(self)
         while not self.q.empty():
             e=self.q.get()
-            if self.action is not None:
-                self.action(e)
+            if self.actions is not None:
+                for action in self.actions:
+                    action(e)
             e.run(self)
     def put(self,ev):
         """put a new event in the simulation queue"""
@@ -42,9 +43,9 @@ class Simulation():
     def add(self,l):
         """add a new agent in the simulation"""
         self.agents.append(l)
-    def set_action(self,act):
-        """define a new (optional) action to do when execute events, such as print"""
-        self.action=act
+    def set_action(self,*act):
+        """define a new (optional) list of actions to do when execute events, such as print"""
+        self.actions=act
     def __iter__(self):
         return self.agents.__iter__()
     

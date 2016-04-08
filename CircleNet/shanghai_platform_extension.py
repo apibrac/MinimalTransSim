@@ -1,5 +1,5 @@
 #DRAWING SETTINGS
-import CircleNet.drawing
+import CircleNet.animation
 import CircleNet.shanghai_platform as platform
 
 def position(agent,t,network):
@@ -45,4 +45,4 @@ def updateFrom(simulation):
     return update
 
 def Positions_drawing(simu):
-    return CircleNet.drawing.Drawing_from_simulation(simu,create_objects,updateFrom(simu))
+    return CircleNet.animation.Drawing_from_simulation(simu,create_objects,updateFrom(simu))
