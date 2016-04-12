@@ -11,6 +11,10 @@ plot_routes(s)
 
 -for a relative plot of deviated route:
 plot_relative_routes(s)
+
+-for relevent data extraction:
+extract_result_data(s)
+otherwise the extraction/observation function should be re implemented manually (way more easy)
 """
 
 import CircleNet.animation
@@ -96,3 +100,65 @@ def plot_routes(simu):
 def plot_relative_routes(simu,cm=(1,0.2,0),cM=(0,0.2,1)):
     P=list(driver_matched_route_extraction(simu))
     CircleNet.draws.plot_relative_trajectories(P,cm,cM)
+    
+    
+
+    
+# FOR DATA EXTRACTION
+
+#efficiency
+def nb_driver_passenger_match(simu):
+    matchD,numberD=0,0
+    for p in simu:
+        if isinstance(p,platform.Driver):
+            numberD+=1
+            for _,action in p.story:
+                if action[0] is "matched":
+                    matchD+=1
+                    break
+    matchP,numberP=0,0
+    for p in simu:
+        if isinstance(p,platform.Passenger):
+            numberP+=1
+            for _,action in p.story:
+                if action[0] is "matched":
+                    matchP+=1
+                    break
+    assert matchP == matchD, """not same number of pedestrian and driver matched,
+    this assertion is not nececessary, is here
+    as long as the match is one to one, to be deleted otherwise"""
+    return numberD,numberP,matchP
+#vks
+def vks(trajectory,network):
+    out=network.travel_distance(trajectory[0],trajectory[3])
+    out-=network.travel_distance(trajectory[0],trajectory[1]) + network.travel_distance(trajectory[2],trajectory[3])
+    return out
+def vks_average_total(simu):
+    l=driver_matched_route_extraction(simu)
+    l=[vks(t,simu.network) for t in l]
+    return sum(l)/len(l),sum(l)
+#wait
+def waiting_times(simu):
+    matched =[]
+    for p in simu:
+        if isinstance(p,platform.Passenger):
+            for t,action in p.story:
+                if action[0] is "matched":
+                    for t2,action2 in p.story:
+                        if action2[0] is "waiting":
+                            matched.append(t-t2)
+                            break
+                    break
+    return sum(matched)/len(matched)
+
+#summary
+def extract_result_data(simu,parameters={}):#data already gather parameters
+    """has results extracted from the simulation, can integrate parameters"""
+    data={}
+    data["average_waiting_time"]=waiting_times(simu)
+    data["average_vks"],data["total_vks"]=vks_average_total(simu)
+    data["nb_driver"],data["nb_passenger"],data["nb_match"]=nb_driver_passenger_match(simu)
+    data["driver_efficiency"]=data["nb_match"]/data["nb_driver"]
+    data["passenger_efficiency"]=data["nb_match"]/data["nb_passenger"]
+    data.update(parameters)
+    return data
