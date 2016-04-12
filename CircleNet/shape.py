@@ -31,7 +31,8 @@ class Network:
     """Network for a simulation:
     position_generator - > function without parameter that randomly give a position in the network
     travel_time - > travel_time(O,D) is the typical time to travel from O=(Ox,Oy) to D
-    travel_distance - > travel_distance(t) is the typical distance made in during time t
+    travel_distance - > travel_distance(O,D) is the distance between O and D in the network
+    distance_travelled - > travel_distance(t) is the typical distance made in during time t
     
     optionals for the draw :
     gpatch - > the patch of the network to be drawn, see matplotlib.patches
