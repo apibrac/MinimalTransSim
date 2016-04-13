@@ -6,6 +6,9 @@
 #modules
 from queue import PriorityQueue
 from functools import total_ordering
+import time
+import tkinter as tk
+from threading import Thread
 
 
 #the simulation object (center of everything)
@@ -28,6 +31,7 @@ class Simulation():
         """First compute all agents inside itself
         then run all events stored (still inside itself)
         an optional function can be applied on events before they are computed"""
+        self.execution_time=time.time()
         for a in self.agents:
             a.compute(self)
         while not self.q.empty():
@@ -36,6 +40,7 @@ class Simulation():
                 for action in self.actions:
                     action(e)
             e.run(self)
+        self.execution_time=time.time()-self.execution_time
     def put(self,ev):
         """put a new event in the simulation queue"""
         self.q.put(ev)
@@ -185,5 +190,27 @@ class Story:
     
             
 
-    
+#DIPLAYER
+class Displayer (Thread):
+    def __init__(self,text=None,repetition_time=1000,function_when_display=None):
+        Thread.__init__(self)
+        self.text=text
+        self.repetition_time=repetition_time
+        self.function=function_when_display
+    def run(self):
+        window=tk.Tk()
+        t=tk.Label(window, text=self.text)
+        t.pack()
+        def update():
+            if self.function :
+                t["text"]=self.function(self.text)
+            else :
+                t["text"]=self.text
+            window.after(self.repetition_time,update)
+        window.after(self.repetition_time,update)
+        window.mainloop()
+    def change(self,text):
+        self.text=text
+
+
 
