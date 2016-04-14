@@ -198,19 +198,22 @@ class Displayer (Thread):
         self.repetition_time=repetition_time
         self.function=function_when_display
     def run(self):
-        window=tk.Tk()
-        t=tk.Label(window, text=self.text)
+        self.window=tk.Tk()
+        t=tk.Label(self.window, text=self.text)
         t.pack()
         def update():
             if self.function :
                 t["text"]=self.function(self.text)
             else :
                 t["text"]=self.text
-            window.after(self.repetition_time,update)
-        window.after(self.repetition_time,update)
-        window.mainloop()
+            self.window.after(self.repetition_time,update)
+        self.window.after(self.repetition_time,update)
+        self.window.mainloop()
+        del self
     def change(self,text):
         self.text=text
+    def quit(self):
+        self.window.quit()
 
 
 
