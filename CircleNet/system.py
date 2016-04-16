@@ -7,8 +7,6 @@
 from queue import PriorityQueue
 from functools import total_ordering
 import time
-import tkinter as tk
-from threading import Thread
 
 
 #the simulation object (center of everything)
@@ -190,30 +188,7 @@ class Story:
     
             
 
-#DIPLAYER
-class Displayer (Thread):
-    def __init__(self,text=None,repetition_time=1000,function_when_display=None):
-        Thread.__init__(self)
-        self.text=text
-        self.repetition_time=repetition_time
-        self.function=function_when_display
-    def run(self):
-        self.window=tk.Tk()
-        t=tk.Label(self.window, text=self.text)
-        t.pack()
-        def update():
-            if self.function :
-                t["text"]=self.function(self.text)
-            else :
-                t["text"]=self.text
-            self.window.after(self.repetition_time,update)
-        self.window.after(self.repetition_time,update)
-        self.window.mainloop()
-        del self
-    def change(self,text):
-        self.text=text
-    def quit(self):
-        self.window.quit()
+
 
 
 

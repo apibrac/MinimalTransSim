@@ -1,5 +1,5 @@
 
-from CircleNet.system import Event, Agent, Simulation
+from CircleNet.system import Event, Agent
 
 # the algo module (detailed)
 class MatchingPlatform:

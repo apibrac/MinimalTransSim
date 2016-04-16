@@ -9,6 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import time
+import tkinter as tk
+from threading import Thread
 
 
 #to write the time
@@ -104,3 +106,37 @@ def Drawing_from_simulation(s,o,u):#s is a simulation object
             object[0].set_data(...)
         """
     return Drawing(s.network.Xsize,s.network.Ysize,s.network.get_patch(),s.timer.finish_time,o,u)
+
+
+
+#DIPLAYER
+class Displayer (Thread,tk.Tk):
+    """Display in a window with another kernel
+    change -> actualize the text stored
+    repetition_time -> tempo for actualization of window
+    function_when_display -> OPTINAL applied on text at each actualization of window
+                not applied at each change in case several changes for each actualization"""
+    def __init__(self,text=None,repetition_time=1000,function_when_display=None):
+        Thread.__init__(self)
+        self.text=text
+        self.repetition_time=repetition_time
+        self.function=function_when_display
+    def run(self):
+        tk.Tk.__init__(self)
+        t=tk.Label(self, text=self.text)
+        t.pack()
+        def update():
+            if self.function :
+                t["text"]=self.function(self.text)
+            else :
+                t["text"]=self.text
+            self.after(self.repetition_time,update)
+        self.after(self.repetition_time,update)
+        self.mainloop()
+    def change(self,text):
+        self.text=text
+    def close(self):
+        self.quit()
+
+        
+   
