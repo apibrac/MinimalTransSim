@@ -15,18 +15,21 @@ class MatchingPlatform:
         self.passengerList={}
         self.benefits=benefits_function
         self.simulation=simu
+        self.count=0# for optimization: we store a count so when we want to look again we know from where we start
     def addPassenger(self,agent,lastDeparture,origin,destination):
         """Add a passenger with all needed info"""
-        self.passengerList[agent]={"ld":lastDeparture,"O":origin,"D":destination}
-    def checkPotentialMatching(self,departureTime,origin):#information of driver
+        self.passengerList[agent]={"ld":lastDeparture,"O":origin,"D":destination,"count":self.count}
+        self.count+=1
+    def checkPotentialMatching(self,departureTime,origin,last_count=None):#information of driver
         """send the list of compatible announce (with the departureTime)"""
         out=[]
-        for passenger in self.passengerList:
-            p_info=self.passengerList[passenger]
+        for passenger,p_info in self.passengerList.items():
+            if last_count and p_info["count"]<=last_count:
+                continue
             travelTime=self.simulation.network.travel_time(origin,p_info["O"])#travel time from the driver origin to the passenger origin
             if departureTime+travelTime <= p_info["ld"]:#check compatibility
                 out.append(self.sendAnnounce(passenger,p_info))
-        return out
+        return out,self.count
     def sendAnnounce(self,agent,info):
         """set the information send to a driver when a coherent passenger is found"""
         bene=self.benefits(info["O"],info["D"],self.simulation.network)
@@ -75,16 +78,18 @@ class RetreiveAnnounce(Event):
         
 class WatchAnnounce(Event):
     """A driver ask for potential passengers"""
-    def __init__(self,agent,watching_time):
+    def __init__(self,agent,watching_time,last_check=None):
         self.time=watching_time
         self.agent=agent
+        self.check_from=last_check
     def __str__(self):
         return super().__str__() + " by agent " + str(self.agent.id_number)
     def run(self,simulation):
         #compute at what time the driver can leave:
         possible_departure=max(self.agent.departure_window[0],self.time)
         #look all potential matchings
-        potentialMatching=simulation.matchingAlgo.checkPotentialMatching(possible_departure,self.agent.position)
+        potentialMatching,current_count=simulation.matchingAlgo.checkPotentialMatching(possible_departure,
+                                                                                     self.agent.position,self.check_from)
         agentMatched=None
         bestRate=0
         for match in potentialMatching:
@@ -105,7 +110,7 @@ class WatchAnnounce(Event):
                 self.agent(self.time,"alone")
                 simulation.put(Travel(possible_departure,[("Od",self.agent.position),("Dd",self.agent.destination)],[[self.agent,"Od","Dd"]]))#simplify?
             else:
-                simulation.put(WatchAnnounce(self.agent,next_watching))
+                simulation.put(WatchAnnounce(self.agent,next_watching,current_count))
                 self.agent(self.time,"watching",position=self.agent.position)
         
 class Travel(Event):
