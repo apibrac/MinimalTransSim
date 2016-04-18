@@ -9,6 +9,7 @@ Other typical generator can be added later"""
 from random import random
 from math import sqrt
 import matplotlib.patches as patch
+import numpy as np
 
 
 def multiple_entry(double_entry):
@@ -109,6 +110,13 @@ def circle(R, basic_speed):
     def gpatch():
         return patch.Circle((0,0),R)
     return Network(position,travel_d,travel_t,dist_travelled,gpatch,S,S)
+   
     
-
+def get_log_normal(average,variance):
+    sigma=np.log(1+(variance/average)**2)
+    mu=np.log(average)-sigma**2/2
+    sigma=np.sqrt(sigma)
+    def out():
+        return np.random.lognormal(mu, sigma)
+    return out
 
