@@ -161,5 +161,6 @@ def extract_result_data(simu,parameters={}):#data already gather parameters
     data["driver_efficiency"]=data["nb_match"]/data["nb_driver"]
     data["passenger_efficiency"]=data["nb_match"]/data["nb_passenger"]
     data["execution_time"]=simu.execution_time
+    data["id_sim"]=simu.id_sim
     data.update(parameters)
     return data

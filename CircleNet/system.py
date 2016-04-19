@@ -29,6 +29,7 @@ class Simulation():
         """First compute all agents inside itself
         then run all events stored (still inside itself)
         an optional function can be applied on events before they are computed"""
+        self.id_sim=get_id()
         self.execution_time=time.time()
         for a in self.agents:
             a.compute(self)
@@ -187,6 +188,10 @@ class Story:
     
     
             
+def get_id():
+    """id of the simulation
+    based on the second it is launched"""
+    return "{0}{7:03}{3:02}{4:02}{5:02}".format(*time.localtime())
 
 
 
