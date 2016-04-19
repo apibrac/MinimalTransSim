@@ -129,13 +129,14 @@ def nb_driver_passenger_match(simu):
     as long as the match is one to one, to be deleted otherwise"""
     return numberD,numberP,matchP
 #vks
-def vks(trajectory,network):
+def vks_detour(trajectory,network):
     out=network.travel_distance(trajectory[0],trajectory[3])
     out-=network.travel_distance(trajectory[0],trajectory[1]) + network.travel_distance(trajectory[2],trajectory[3])
-    return out
+    detour=out+network.travel_distance(trajectory[1],trajectory[2])
+    return out,detour
 def vks_average_total(simu):
     l=driver_matched_route_extraction(simu)
-    l=[vks(t,simu.network) for t in l]
+    l=[vks_detour(t,simu.network)[0] for t in l]
     return sum(l)/len(l),sum(l)
 #wait
 def waiting_times(simu):
