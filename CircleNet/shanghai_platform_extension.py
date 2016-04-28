@@ -132,7 +132,7 @@ def nb_driver_passenger_match(simu):
 def vks_detour(trajectory,network):
     out=network.travel_distance(trajectory[0],trajectory[3])
     out-=network.travel_distance(trajectory[0],trajectory[1]) + network.travel_distance(trajectory[2],trajectory[3])
-    detour=out+network.travel_distance(trajectory[1],trajectory[2])
+    detour=network.travel_distance(trajectory[1],trajectory[2])-out
     return out,detour
 def vks_average_total(simu):
     l=driver_matched_route_extraction(simu)
