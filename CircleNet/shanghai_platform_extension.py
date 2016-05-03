@@ -19,6 +19,8 @@ otherwise the extraction/observation function should be re implemented manually 
 
 import CircleNet.animation
 import CircleNet.draws
+import CircleNet.shape as sh
+import CircleNet.system as sys
 import CircleNet.shanghai_platform as platform
 
 # FOR ANIMATION :
@@ -69,9 +71,28 @@ def Positions_drawing(simu):
     return CircleNet.animation.Drawing_from_simulation(simu,create_objects,updateFrom(simu))
 
 
-# FOR DEVIATED TRAJECTORIES :
 
-#data extraction
+# FOR ROUTE PLOT
+def plot_routes(simu):
+    P=driver_matched_route_extraction(simu)
+    CircleNet.draws.plot_trajectories(P)
+def plot_relative_routes(simu,cm=(1,0.2,0),cM=(0,0.2,1)):
+    P=list(driver_matched_route_extraction(simu))
+    CircleNet.draws.plot_relative_trajectories(P,cm,cM)
+    
+    
+
+    
+# DATA EXTRACTION
+#route
+def extract_route(driver):
+    route=[]
+    for _,action in driver.story.reverse_iter():
+        if action[0] is "moving" :
+            route.append(action[1]["start"])
+        elif action[0] is "arrived":
+            route.append(action[1]["point"])
+    return route
 def driver_matched_route_extraction(simu):
     points=[]
     for agent in simu:
@@ -82,81 +103,39 @@ def driver_matched_route_extraction(simu):
                     interesting=True
                     break
             if interesting :
-                route=[]
-                for _,action in agent.story.reverse_iter():
-                    if action[0] is "moving" :
-                        route.append(action[1]["start"])
-                    elif action[0] is "arrived":
-                        route.append(action[1]["point"])
-                points.append(route)
+                points.append(extract_route(agent))
     return points
-
-
-#route plot functions
-def plot_routes(simu):
-    P=driver_matched_route_extraction(simu)
-    CircleNet.draws.plot_trajectories(P)
-    
-def plot_relative_routes(simu,cm=(1,0.2,0),cM=(0,0.2,1)):
-    P=list(driver_matched_route_extraction(simu))
-    CircleNet.draws.plot_relative_trajectories(P,cm,cM)
-    
-    
-
-    
-# FOR DATA EXTRACTION
-
-#efficiency
+#egeneral info
 def nb_driver_passenger_match(simu):
-    matchD,numberD=0,0
+    matchD,numberD,matchP,numberP=0,0,0,0
     for p in simu:
         if isinstance(p,platform.Driver):
             numberD+=1
-            for _,action in p.story:
-                if action[0] is "matched":
-                    matchD+=1
-                    break
-    matchP,numberP=0,0
-    for p in simu:
+            if p.story.get_attribute("matched")[0] is 1:
+                matchD+=1
         if isinstance(p,platform.Passenger):
             numberP+=1
-            for _,action in p.story:
-                if action[0] is "matched":
-                    matchP+=1
-                    break
+            if p.story.get_attribute("matched")[0] is 1:
+                matchP+=1
     assert matchP == matchD, """not same number of pedestrian and driver matched,
     this assertion is not nececessary, is here
     as long as the match is one to one, to be deleted otherwise"""
     return numberD,numberP,matchP
-#vks
-def vks_detour(trajectory,network):
-    out=network.travel_distance(trajectory[0],trajectory[3])
-    out-=network.travel_distance(trajectory[0],trajectory[1]) + network.travel_distance(trajectory[2],trajectory[3])
-    detour=network.travel_distance(trajectory[1],trajectory[2])-out
-    return out,detour
 def vks_average_total(simu):
-    l=driver_matched_route_extraction(simu)
-    l=[vks_detour(t,simu.network)[0] for t in l]
+    l=[agent.story.get_attribute("vks")[0] for agent in simu if isinstance(agent,platform.Driver)]
+    l=[e for e in l if e is not ""]
     return sum(l)/len(l),sum(l)
-#wait
-def waiting_times(simu):
-    matched =[]
-    for p in simu:
-        if isinstance(p,platform.Passenger):
-            for t,action in p.story:
-                if action[0] is "matched":
-                    for t2,action2 in p.story:
-                        if action2[0] is "waiting":
-                            matched.append(t-t2)
-                            break
-                    break
-    return sum(matched)/len(matched)
+def waiting_average(simu):
+    l=[agent.story.get_attribute("waiting")[0] for agent in simu if isinstance(agent,platform.Passenger)]
+    l=[e for e in l if e is not ""]
+    return sum(l)/len(l)
 
-#summary
+
+
 def extract_result_data(simu,parameters={}):#data already gather parameters
     """has results extracted from the simulation, can integrate parameters"""
     data={}
-    data["average_waiting_time"]=waiting_times(simu)
+    data["average_waiting_time"]=waiting_average(simu)
     data["average_vks"],data["total_vks"]=vks_average_total(simu)
     data["nb_driver"],data["nb_passenger"],data["nb_match"]=nb_driver_passenger_match(simu)
     data["driver_efficiency"]=data["nb_match"]/data["nb_driver"]
@@ -165,3 +144,44 @@ def extract_result_data(simu,parameters={}):#data already gather parameters
     data["id_sim"]=simu.id_sim
     data.update(parameters)
     return data
+
+
+
+
+#SIMULATION CREATOR
+def create_simulation(speed,radius,end,first_watching_before_first_departure,window_size_of_departure,
+                       time_elasticity,fuel_cost,watching_repetition_average,watching_repetition_variance,
+                      time_perception_average,time_perception_variance,publishing_advance,benefits,N_driver,N_passenger):
+    #random functions
+    watching_repetition=sh.get_log_normal(watching_repetition_average,watching_repetition_variance)
+    time_perception=sh.get_log_normal(time_perception_average,time_perception_variance)
+    #agents generator
+    def SimpleDriver(simulation):
+        t=simulation.timer.random_time()
+        O=simulation.network.position_generator()
+        D=simulation.network.position_generator()
+        w=(t+first_watching_before_first_departure,t+first_watching_before_first_departure+window_size_of_departure)
+        A=w[1]+simulation.network.travel_time(O,D)+time_elasticity
+        return platform.Driver(first_watching_time=t,
+                      repetition_time=watching_repetition(),
+                      departure_window=w,
+                      position=O,destination=D,
+                      last_arrival_time=A,
+                      fuel_cost=fuel_cost,
+                      time_perception=time_perception())
+    def SimplePassenger(simulation):
+        t=simulation.timer.random_time()
+        O=simulation.network.position_generator()
+        D=simulation.network.position_generator()
+        return platform.Passenger(publishing_time=t,
+                         last_departure_time=t+publishing_advance,
+                         position=O,destination=D)
+    N=sh.circle(radius,speed)
+    T=sh.Timer(end)
+    simu=sys.Simulation(N,T)
+    simu.matchingAlgo=platform.MatchingPlatform(benefits,simu)
+    for i in range(N_driver):
+        simu.add(SimpleDriver(simu))
+    for i in range(N_passenger):
+        simu.add(SimplePassenger(simu))
+    return simu

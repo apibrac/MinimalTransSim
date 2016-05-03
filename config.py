@@ -3,7 +3,7 @@ Units used are SI : meter and second
 Calculation of variable, defenition of function etc can be made here
 
 If a parameter needs to take several values, put them in a list and preceed the parameter with 'V' (which will be removed)
-    example Vnumber_of_drivers=[1000,2000] means the parameter number_of_drivers will both take the values 1000 and 2000
+    example Vnumber_of_drivers=[1000,2000] means the parameter number_of_drivers will take both the values 1000 and 2000
 If several parameters are variable in this way, all possible configurations of them will be executed"""
 
 

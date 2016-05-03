@@ -97,18 +97,25 @@ class WatchAnnounce(Event):
             if rate > bestRate:#driver accept the match
                 agentMatched=match[0]
         if agentMatched:#we have a match!
+            #actualize passengers
             simulation.matchingAlgo.retreivePassenger(agentMatched)
+            self.agent.set_info(matched=1,passenger=agentMatched.id_number)
             self.agent(self.time,"matched",passenger=agentMatched.id_number)
+            agentMatched.set_info(matched=1,driver=self.agent.id_number,waiting=waiting_time(agentMatched,self.time))
             agentMatched(self.time,"matched",driver=self.agent.id_number)
+            #create the new event
             l_points=[("Od",self.agent.position),("Op",agentMatched.position),("Dp",agentMatched.destination),("Dd",self.agent.destination)]
             l_agents=[[self.agent,"Od","Dd"],[agentMatched,"Op","Dp"]]
             t=Travel(possible_departure,l_points,l_agents)
             simulation.put(t)
+            #compute some last informations
+            v,d=vks_detour([p[1] for p in l_points],simulation.network)
+            self.agent.set_info(vks=v,detour=d)
         else:
             next_watching=self.time+self.agent.repetition_time
             if next_watching > self.agent.departure_window[1]:#too late the driver leaves
                 self.agent(self.time,"alone")
-                simulation.put(Travel(possible_departure,[("Od",self.agent.position),("Dd",self.agent.destination)],[[self.agent,"Od","Dd"]]))#simplify?
+                simulation.put(Travel(possible_departure,[("Od",self.agent.position),("Dd",self.agent.destination)],[[self.agent,"Od","Dd"]]))
             else:
                 simulation.put(WatchAnnounce(self.agent,next_watching,current_count))
                 self.agent(self.time,"watching",position=self.agent.position)
@@ -176,4 +183,21 @@ class Driver(Agent):
         time_loss-=n.travel_time(self.position,self.destination)
         return b - detour * self.fuel_cost - time_loss * self.time_perception
     
-   
+
+    
+    
+    
+    
+    
+#TOOLS
+#vks
+def vks_detour(trajectory,network):
+    """Compute the vks and the detour for a trajectory"""
+    out=network.travel_distance(trajectory[0],trajectory[3])
+    out-=network.travel_distance(trajectory[0],trajectory[1]) + network.travel_distance(trajectory[2],trajectory[3])
+    detour=network.travel_distance(trajectory[1],trajectory[2])-out
+    return out,detour
+#waitin for a matched passenger
+def waiting_time(agent,matched_time):
+    """have to be computed before the match is given to the story"""
+    return matched_time-agent.story[matched_time][0]#last action is waitin as long as we didn't put the match now

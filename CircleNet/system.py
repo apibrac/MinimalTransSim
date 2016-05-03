@@ -140,6 +140,8 @@ class Agent(metaclass=MetaAgent):
                 raise NotImplementedError("You need "+name+" for the agent class "+type(self).__name__)
     def __call__(self,*args,**kwargs):
         self.story.add(*args,**kwargs)
+    def set_info(self,**kwargs):
+        self.story.set_attribute(**kwargs)
     def put_id(self):
         self.id_number=Agent.total_count
         Agent.total_count+=1
@@ -153,13 +155,15 @@ class Agent(metaclass=MetaAgent):
 
 class Story:
     """story of the movement of an agent, middle between dict and list
-    actions are stored in a reverse order in a matter of access: first action to have a time smaller than t is the action executed during t
+    actions are stored in a reverse order in a matter of access: first action that have a time smaller than t is the action executed during t
     
     Is an iterable objects that send back (beginingTime,(actionName,**options)) for all actions
     Can get the action executed at time t with story_name[t]
     
     Reverse_iter can be used to explore actions in the normal order
-    It is used for the __str__ function"""
+    It is used for the __str__ function
+    
+    """
     def __init__(self):
         self.times=[]
         self.actions=[]
@@ -172,7 +176,7 @@ class Story:
     def __getitem__(self,i):
         for t,act in self:
             if t<=i:
-                return t,act#HERE THE LAST CHANGE
+                return t,act
         return None,(None,)
     def reverse_iter(self):
         pos=len(self.times)
@@ -185,6 +189,14 @@ class Story:
             out+="begin at {} to {} ".format(t,act)
             out+='\n'
         return out
+    def set_attribute(self,**kwargs):
+        """Is used for all new attributes to save
+        This function can be changed if we don't want informations to be store for a matter of memory. So we don't need to change the processes"""
+        self.__dict__.update(**kwargs)
+    def get_attribute(self,*args):
+        """Is used to get the stored attributes (can be a list)
+        return "" if the attribute doesn not exist"""
+        return [self.__dict__.get(key,"") for key in args]
     
     
             
@@ -192,7 +204,6 @@ def get_id():
     """id of the simulation
     based on the second it is launched"""
     return "{0}{7:03}{3:02}{4:02}{5:02}".format(*time.localtime())
-
 
 
 
