@@ -16,18 +16,20 @@ def extract(module):
             else:
                 static[key]=module.__dict__[key]
     return static,variable
-def get_parameter_sets(static,**variable):
+def get_parameter_sets(message,static,**variable):
     if not variable:#everything is static
-        yield static
+        yield static,message
         raise StopIteration
     key,new_variable = variable.popitem()# new_variable is the list of values that key should take
     for value in new_variable:
         static[key]=value
-        for out in get_parameter_sets(static,**variable):
+        submessage=message+str(key)+"="+str(value)+" "
+        for out in get_parameter_sets(submessage,static,**variable):
+            #send all outputs generated from variable that stay with the current value of key
             yield out           
 def get_parameters(module_name):
     s,v=extract(module_name)
-    return get_parameter_sets(s,**v)
+    return get_parameter_sets("",s,**v)
 
 
 

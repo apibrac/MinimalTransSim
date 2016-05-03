@@ -116,18 +116,19 @@ class Displayer (Thread,tk.Tk):
     repetition_time -> tempo for actualization of window
     function_when_display -> OPTINAL applied on text at each actualization of window
                 not applied at each change in case several changes for each actualization"""
-    def __init__(self,text=None,repetition_time=1000,function_when_display=None):
+    def __init__(self,text=None,repetition_time=1000,function_when_display=None,optional_dictionnary={}):
         Thread.__init__(self)
         self.text=text
         self.repetition_time=repetition_time
         self.function=function_when_display
+        self.optional_dictionnary=optional_dictionnary
     def run(self):
         tk.Tk.__init__(self)
         t=tk.Label(self, text=self.text)
         t.pack()
         def update():
             if self.function :
-                t["text"]=self.function(self.text)
+                t["text"]=self.function(self.text).format(**self.optional_dictionnary)
             else :
                 t["text"]=self.text
             self.after(self.repetition_time,update)
