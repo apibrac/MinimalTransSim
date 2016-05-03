@@ -140,8 +140,6 @@ class Agent(metaclass=MetaAgent):
                 raise NotImplementedError("You need "+name+" for the agent class "+type(self).__name__)
     def __call__(self,*args,**kwargs):
         self.story.add(*args,**kwargs)
-    def set_info(self,**kwargs):
-        self.story.set_attribute(**kwargs)
     def put_id(self):
         self.id_number=Agent.total_count
         Agent.total_count+=1
@@ -197,7 +195,14 @@ class Story:
         """Is used to get the stored attributes (can be a list)
         return "" if the attribute doesn not exist"""
         return [self.__dict__.get(key,"") for key in args]
-    
+    def add_to_att(self,**kwargs):
+        """Add a value to the attribute. 
+        If the attribute doesn't exist, it is set the the value, otherwise the value is just add (no matter the type)"""
+        for key,value in kwargs.items():
+            if self.get_attribute(key)[0] is "":
+                self.set_attribute(**{key:value})
+            else :
+                self.__dict__[key]+=value
     
             
 def get_id():

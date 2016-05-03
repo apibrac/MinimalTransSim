@@ -92,16 +92,18 @@ class WatchAnnounce(Event):
                                                                                      self.agent.position,self.check_from)
         agentMatched=None
         bestRate=0
+        self.agent.story.add_to_att(watches=1)
         for match in potentialMatching:
+            self.agent.story.add_to_att(viewed_announces=1)
             rate=self.agent.rating(**match[1],n=simulation.network,t=possible_departure)
             if rate > bestRate:#driver accept the match
                 agentMatched=match[0]
         if agentMatched:#we have a match!
             #actualize passengers
             simulation.matchingAlgo.retreivePassenger(agentMatched)
-            self.agent.set_info(matched=1,passenger=agentMatched.id_number)
+            self.agent.story.set_attribute(matched=1,passenger=agentMatched.id_number)
             self.agent(self.time,"matched",passenger=agentMatched.id_number)
-            agentMatched.set_info(matched=1,driver=self.agent.id_number,waiting=waiting_time(agentMatched,self.time))
+            agentMatched.story.set_attribute(matched=1,driver=self.agent.id_number,waiting=waiting_time(agentMatched,self.time))
             agentMatched(self.time,"matched",driver=self.agent.id_number)
             #create the new event
             l_points=[("Od",self.agent.position),("Op",agentMatched.position),("Dp",agentMatched.destination),("Dd",self.agent.destination)]
@@ -110,7 +112,7 @@ class WatchAnnounce(Event):
             simulation.put(t)
             #compute some last informations
             v,d=vks_detour([p[1] for p in l_points],simulation.network)
-            self.agent.set_info(vks=v,detour=d)
+            self.agent.story.set_attribute(vks=v,detour=d)
         else:
             next_watching=self.time+self.agent.repetition_time
             if next_watching > self.agent.departure_window[1]:#too late the driver leaves
