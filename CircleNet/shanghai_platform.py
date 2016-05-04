@@ -1,5 +1,5 @@
 
-from CircleNet.system import Event, Agent
+import CircleNet.system as sys
 
 # the algo module (detailed)
 class MatchingPlatform:
@@ -49,7 +49,7 @@ class MatchingPlatform:
         
         
 #EVENT
-class PublishAnnounce(Event):
+class PublishAnnounce(sys.Event):
     """Event when a passenger publish an announce"""
     def __init__(self, agent):
         self.time=agent.publishing_time
@@ -62,7 +62,7 @@ class PublishAnnounce(Event):
     def __str__(self):
         return super().__str__() + " by agent " + str(self.agent.id_number)
         
-class RetreiveAnnounce(Event):
+class RetreiveAnnounce(sys.Event):
     """Delete a passenger's announce
         if really delete it means the passenger didn't find a proper driver
         otherwise this event is useless"""
@@ -76,7 +76,7 @@ class RetreiveAnnounce(Event):
         return super().__str__() + " by agent " + str(self.agent.id_number)
         
         
-class WatchAnnounce(Event):
+class WatchAnnounce(sys.Event):
     """A driver ask for potential passengers"""
     def __init__(self,agent,watching_time,last_check=None):
         self.time=watching_time
@@ -122,7 +122,7 @@ class WatchAnnounce(Event):
                 simulation.put(WatchAnnounce(self.agent,next_watching,current_count))
                 self.agent(self.time,"watching",position=self.agent.position)
         
-class Travel(Event):
+class Travel(sys.Event):
     """Has a list of points for the trajectory
     Also has the list of travellers with their start and end points"""
     def __init__(self,time,points_list,agents_list):
@@ -166,13 +166,13 @@ class Travel(Event):
             
             
 #AGENTS
-class Passenger(Agent):
+class Passenger(sys.Agent):
     """ask for a drive"""
     attributes=["publishing_time","last_departure_time","position","destination"]
     def compute(self,simulation):
         simulation.put(PublishAnnounce(self))
         
-class Driver(Agent):
+class Driver(sys.Agent):
     """propose a drive"""
     attributes=["first_watching_time","repetition_time","departure_window","position","destination","last_arrival_time","fuel_cost","time_perception"]
     def compute(self,simulation):

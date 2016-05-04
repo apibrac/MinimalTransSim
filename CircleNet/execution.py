@@ -1,5 +1,4 @@
-"""gather all functions for execution of a simulation (managemenet of parameters,"""
-
+"""gather all functions for execution of a simulation (managemenet of parameters, writing files...)"""
 
 
 

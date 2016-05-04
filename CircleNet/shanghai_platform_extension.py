@@ -17,11 +17,9 @@ extract_result_data(s)
 otherwise the extraction/observation function should be re implemented manually (way more easy)
 """
 
-import CircleNet.animation
-import CircleNet.draws
 import CircleNet.shape as sh
 import CircleNet.system as sys
-import CircleNet.shanghai_platform as platform
+from CircleNet.shanghai_platform import Driver, Passenger, MatchingPlatform
 
 # FOR ANIMATION :
 
@@ -52,9 +50,9 @@ def updateFrom(simulation):
         p=[]
         d=[]
         for agent in simulation:
-            if isinstance(agent,platform.Passenger):
+            if isinstance(agent,Passenger):
                 p.append(position(agent,t,simulation.network))
-            if isinstance(agent,platform.Driver):
+            if isinstance(agent,Driver):
                 d.append(position(agent,t,simulation.network))
         if p:
             x=[x[0] for x in p if x is not None]
@@ -96,7 +94,7 @@ def extract_route(driver):
 def driver_matched_route_extraction(simu):
     points=[]
     for agent in simu:
-        if isinstance(agent,platform.Driver):
+        if isinstance(agent,Driver):
             interesting=False
             for _,action in agent.story:
                 if action[0] is "matched":#we want his route !
@@ -109,11 +107,11 @@ def driver_matched_route_extraction(simu):
 def nb_driver_passenger_match(simu):
     matchD,numberD,matchP,numberP=0,0,0,0
     for p in simu:
-        if isinstance(p,platform.Driver):
+        if isinstance(p,Driver):
             numberD+=1
             if p.story.get_attribute("matched")[0] is 1:
                 matchD+=1
-        if isinstance(p,platform.Passenger):
+        if isinstance(p,Passenger):
             numberP+=1
             if p.story.get_attribute("matched")[0] is 1:
                 matchP+=1
@@ -122,11 +120,11 @@ def nb_driver_passenger_match(simu):
     as long as the match is one to one, to be deleted otherwise"""
     return numberD,numberP,matchP
 def vks_average_total(simu):
-    l=[agent.story.get_attribute("vks")[0] for agent in simu if isinstance(agent,platform.Driver)]
+    l=[agent.story.get_attribute("vks")[0] for agent in simu if isinstance(agent,Driver)]
     l=[e for e in l if e is not ""]
     return sum(l)/len(l),sum(l)
 def waiting_average(simu):
-    l=[agent.story.get_attribute("waiting")[0] for agent in simu if isinstance(agent,platform.Passenger)]
+    l=[agent.story.get_attribute("waiting")[0] for agent in simu if isinstance(agent,Passenger)]
     l=[e for e in l if e is not ""]
     return sum(l)/len(l)
 
@@ -162,7 +160,7 @@ def create_simulation(speed,radius,end,first_watching_before_first_departure,win
         D=simulation.network.position_generator()
         w=(t+first_watching_before_first_departure,t+first_watching_before_first_departure+window_size_of_departure)
         A=w[1]+simulation.network.travel_time(O,D)+time_elasticity
-        return platform.Driver(first_watching_time=t,
+        return Driver(first_watching_time=t,
                       repetition_time=watching_repetition(),
                       departure_window=w,
                       position=O,destination=D,
@@ -173,13 +171,13 @@ def create_simulation(speed,radius,end,first_watching_before_first_departure,win
         t=simulation.timer.random_time()
         O=simulation.network.position_generator()
         D=simulation.network.position_generator()
-        return platform.Passenger(publishing_time=t,
+        return Passenger(publishing_time=t,
                          last_departure_time=t+publishing_advance,
                          position=O,destination=D)
     N=sh.circle(radius,speed)
     T=sh.Timer(end)
     simu=sys.Simulation(N,T)
-    simu.matchingAlgo=platform.MatchingPlatform(benefits,simu)
+    simu.matchingAlgo=MatchingPlatform(benefits,simu)
     for i in range(N_driver):
         simu.add(SimpleDriver(simu))
     for i in range(N_passenger):
