@@ -19,7 +19,9 @@ otherwise the extraction/observation function should be re implemented manually 
 
 import CircleNet.shape as sh
 import CircleNet.system as sys
+import CircleNet.draws
 from CircleNet.shanghai_platform import Driver, Passenger, MatchingPlatform
+from CircleNet.animation import format_time, Displayer,Drawing_from_simulation
 
 # FOR ANIMATION :
 
@@ -66,7 +68,7 @@ def updateFrom(simulation):
     return update
 
 def Positions_drawing(simu):
-    return CircleNet.animation.Drawing_from_simulation(simu,create_objects,updateFrom(simu))
+    return Drawing_from_simulation(simu,create_objects,updateFrom(simu))
 
 
 
@@ -183,3 +185,29 @@ def create_simulation(speed,radius,end,first_watching_before_first_departure,win
     for i in range(N_passenger):
         simu.add(SimplePassenger(simu))
     return simu
+
+general_data_to_save=['id_sim', 'nb_passenger','nb_driver','execution_time', 'nb_match','driver_efficiency', 'passenger_efficiency',  
+         'average_waiting_time','average_vks', 'total_vks']
+
+info_p=["id_number","Ox","Oy","Dx","Dy","last_departure_time","matched","driver","waiting"]
+option_p={"position":("Ox","Oy"),"destination":("Dx","Dy")}
+
+info_d=["id_number","Ox","Oy","Dx","Dy","departure_t","value_of_time","repetition_time","watches","viewed_announces","matched","passenger","vks","detour"]
+option_d={"position":("Ox","Oy"),"destination":("Dx","Dy"),"time_perception":"value_of_time","departure_window":("None","departure_t")}
+
+particular_files=[dict(name="drivers",selection_function=lambda x:isinstance(x,Driver),info_list=info_d,options_list=option_d),
+       dict(name="passengers",selection_function=lambda x:isinstance(x,Passenger),info_list=info_p,options_list=option_p)]
+
+class Simu_counter(Displayer):
+    def __init__(self):
+        def f(u):
+            out=""
+            try:
+                out="Simu n'{sim_number}\n{variable_parameters}\nTime: "+format_time(float(u))
+            except ValueError:
+                out=u
+            return out
+        Displayer.__init__(self,text='Waiting...',function_when_display=f,optional_dictionnary=dict(sim_number=0,variable_parameters=""))
+    def new_sim(self,message):
+        self.optional_dictionnary["sim_number"]+=1
+        self.optional_dictionnary["variable_parameters"]=message

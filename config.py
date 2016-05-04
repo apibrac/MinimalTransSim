@@ -15,8 +15,8 @@ radius = 25 * 1000 #  25km
 end = 3 * 3600 #  3h
 
 #GENERAL VALUES
-VN_driver= [2000,3000] #,4000,5000,6000,7000,8000,9000,10000,20000,30000,50000]
-VN_passenger= [2000,3000]#,4000,5000,6000,7000,8000,9000,10000,20000,30000,50000]
+N_driver=5000# [100000]# [2000,4000,5000]#,6000,7000,8000,9000,10000,20000,30000,50000]
+N_passenger=5000#[100000]# [2000,4000,5000]#,6000,7000,8000,9000,10000,20000,30000,50000]
 
 #DRIVERS CARACTERISTICS
 first_watching_before_first_departure = 5 * 60
@@ -25,8 +25,8 @@ time_elasticity = 5 * 60
 fuel_cost = 0.5/1000#0.5RMB per kilometer
 watching_repetition_average = 60 # -> random
 watching_repetition_variance = 10
-time_perception_average = 5 / 300 # = 24 * 50/100 / 3600 #50% of average income, in second   -> random
-time_perception_variance = 5 / 3000 #10% percent
+time_perception_average = 100/60 # = 24 * 50/100 / 3600 #50% of average income, in second   -> random
+time_perception_variance = 100/60 #10% percent
 
 #PASSENGERS CARACTERISTICS
 publishing_advance = 20 * 60
