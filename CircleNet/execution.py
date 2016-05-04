@@ -4,6 +4,7 @@
 
 
 
+
 #PARAMETERS READER
 def extract(module):
     static={}
@@ -70,14 +71,14 @@ def extract_info(agent, attributes_list, options_name={}):
         else :# l is the object
             out[options_name[key]]=l
     return out
-def save_agents(simu,*files_info):
+def save_agents(simu,path,*files_info):
     """every file in files_info is a dictionnary
         file[name] -> name of the output file (preceded by {id}_)
         file[selection_function] -> send true for all agents concerned by this file
         file[info_list] -> list of info to store
         file[options_list] -> optional to give the provenance of several info (see extract_info)"""
     for file in files_info:
-        file["writter"]=open("data/{}_{}.csv".format(simu.id_sim,file["name"] ),"w")
+        file["writter"]=open(path+"{}_{}.csv".format(simu.id_sim,file["name"] ),"w")
         file["writter"].write(",".join(file["info_list"])+"\n")
         file["the_string"]="{"+"},{".join(file["info_list"])+"}\n"
     for agent in simu:

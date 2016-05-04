@@ -1,5 +1,5 @@
 
-import CircleNet.system as sys
+import CircleNet.core as cor
 
 # the algo module (detailed)
 class MatchingPlatform:
@@ -49,7 +49,7 @@ class MatchingPlatform:
         
         
 #EVENT
-class PublishAnnounce(sys.Event):
+class PublishAnnounce(cor.Event):
     """Event when a passenger publish an announce"""
     def __init__(self, agent):
         self.time=agent.publishing_time
@@ -62,7 +62,7 @@ class PublishAnnounce(sys.Event):
     def __str__(self):
         return super().__str__() + " by agent " + str(self.agent.id_number)
         
-class RetreiveAnnounce(sys.Event):
+class RetreiveAnnounce(cor.Event):
     """Delete a passenger's announce
         if really delete it means the passenger didn't find a proper driver
         otherwise this event is useless"""
@@ -76,7 +76,7 @@ class RetreiveAnnounce(sys.Event):
         return super().__str__() + " by agent " + str(self.agent.id_number)
         
         
-class WatchAnnounce(sys.Event):
+class WatchAnnounce(cor.Event):
     """A driver ask for potential passengers"""
     def __init__(self,agent,watching_time,last_check=None):
         self.time=watching_time
@@ -92,16 +92,18 @@ class WatchAnnounce(sys.Event):
                                                                                      self.agent.position,self.check_from)
         agentMatched=None
         bestRate=0
+        benefit=0
         self.agent.story.add_to_att(watches=1)
         for match in potentialMatching:
             self.agent.story.add_to_att(viewed_announces=1)
             rate=self.agent.rating(**match[1],n=simulation.network,t=possible_departure)
             if rate > bestRate:#driver accept the match
                 agentMatched=match[0]
+                benefit=match[1]["b"]
         if agentMatched:#we have a match!
             #actualize passengers
             simulation.matchingAlgo.retreivePassenger(agentMatched)
-            self.agent.story.set_attribute(matched=1,passenger=agentMatched.id_number)
+            self.agent.story.set_attribute(matched=1,passenger=agentMatched.id_number,benefit=benefit)
             self.agent(self.time,"matched",passenger=agentMatched.id_number)
             agentMatched.story.set_attribute(matched=1,driver=self.agent.id_number,waiting=waiting_time(agentMatched,self.time))
             agentMatched(self.time,"matched",driver=self.agent.id_number)
@@ -122,7 +124,7 @@ class WatchAnnounce(sys.Event):
                 simulation.put(WatchAnnounce(self.agent,next_watching,current_count))
                 self.agent(self.time,"watching",position=self.agent.position)
         
-class Travel(sys.Event):
+class Travel(cor.Event):
     """Has a list of points for the trajectory
     Also has the list of travellers with their start and end points"""
     def __init__(self,time,points_list,agents_list):
@@ -166,13 +168,13 @@ class Travel(sys.Event):
             
             
 #AGENTS
-class Passenger(sys.Agent):
+class Passenger(cor.Agent):
     """ask for a drive"""
     attributes=["publishing_time","last_departure_time","position","destination"]
     def compute(self,simulation):
         simulation.put(PublishAnnounce(self))
         
-class Driver(sys.Agent):
+class Driver(cor.Agent):
     """propose a drive"""
     attributes=["first_watching_time","repetition_time","departure_window","position","destination","last_arrival_time","fuel_cost","time_perception"]
     def compute(self,simulation):

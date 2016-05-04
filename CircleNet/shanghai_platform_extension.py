@@ -18,7 +18,7 @@ otherwise the extraction/observation function should be re implemented manually 
 """
 
 import CircleNet.shape as sh
-import CircleNet.system as sys
+import CircleNet.core as cor
 import CircleNet.draws
 from CircleNet.shanghai_platform import Driver, Passenger, MatchingPlatform
 from CircleNet.animation import format_time, Displayer,Drawing_from_simulation
@@ -178,7 +178,7 @@ def create_simulation(speed,radius,end,first_watching_before_first_departure,win
                          position=O,destination=D)
     N=sh.circle(radius,speed)
     T=sh.Timer(end)
-    simu=sys.Simulation(N,T)
+    simu=cor.Simulation(N,T)
     simu.matchingAlgo=MatchingPlatform(benefits,simu)
     for i in range(N_driver):
         simu.add(SimpleDriver(simu))
@@ -192,20 +192,20 @@ general_data_to_save=['id_sim', 'nb_passenger','nb_driver','execution_time', 'nb
 info_p=["id_number","Ox","Oy","Dx","Dy","last_departure_time","matched","driver","waiting"]
 option_p={"position":("Ox","Oy"),"destination":("Dx","Dy")}
 
-info_d=["id_number","Ox","Oy","Dx","Dy","departure_t","value_of_time","repetition_time","watches","viewed_announces","matched","passenger","vks","detour"]
+info_d=["id_number","Ox","Oy","Dx","Dy","departure_t","value_of_time","repetition_time","watches","viewed_announces","matched","passenger","vks","detour","benefit"]
 option_d={"position":("Ox","Oy"),"destination":("Dx","Dy"),"time_perception":"value_of_time","departure_window":("None","departure_t")}
 
 particular_files=[dict(name="drivers",selection_function=lambda x:isinstance(x,Driver),info_list=info_d,options_list=option_d),
        dict(name="passengers",selection_function=lambda x:isinstance(x,Passenger),info_list=info_p,options_list=option_p)]
 
 class Simu_counter(Displayer):
-    def __init__(self):
+    def __init__(self, name):
         def f(u):
             out=""
             try:
-                out="Simu n'{sim_number}\n{variable_parameters}\nTime: "+format_time(float(u))
+                out=name+"\nSimu n'{sim_number}\n{variable_parameters}\nTime: "+format_time(float(u))
             except ValueError:
-                out=u
+                out=name+"\n"+u
             return out
         Displayer.__init__(self,text='Waiting...',function_when_display=f,optional_dictionnary=dict(sim_number=0,variable_parameters=""))
     def new_sim(self,message):
