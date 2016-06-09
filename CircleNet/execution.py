@@ -29,7 +29,9 @@ def get_parameter_sets(message,static,**variable):
             yield out           
 def get_parameters(module_name):
     s,v=extract(module_name)
-    return get_parameter_sets("",s,**v)
+    def output():
+        return get_parameter_sets("",s,**v)
+    return output,list(v.keys())
 
 
 

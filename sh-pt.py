@@ -15,7 +15,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument_group()
 parser.add_argument("-p","--path",default="config.py",help="path/file of the parameters, config.py by default")
 parser.add_argument("-o","--output_folder",default="data/",help="""folder for output files, data/ by default""")
-parser.add_argument("-f","--folder",help="""entire folder of parameters will be executed, -p and -n useless, -n automatically activated, can reactivate with -on""")
+parser.add_argument("-f","--folder",help="""ALL NIGHT MODE: entire folder of parameters will be executed, -p and -o useless, -n automatically activated, can reactivate with -on""")
 detail=parser.add_mutually_exclusive_group()
 detail.add_argument("-n","--no_detail",help="output files for each simulation won't be printed",action="store_true")
 detail.add_argument("-on",help="to force the details",action="store_true")
@@ -52,14 +52,15 @@ for config in configurations:
     d.start()
     name=args.output_folder
     name+= config+".csv" if args.folder else "{}_{}.csv".format(get_id(),"general")
-    result_file=Write_csv(name,general_data_to_save)#results
-    for PARAMETERS,message in get_parameters(parameter_file):
+    parameter_list,variable_names=get_parameters(parameter_file)
+    result_file=Write_csv(name,general_data_to_save+variable_names)#results
+    for PARAMETERS,message in parameter_list():
         d.new_sim(message)#update message in displayer
         simu=create_simulation(**PARAMETERS)#creation
         simu.set_action(lambda x: d.change(x.time))
         simu()#execution
         results=extract_result_data(simu)#extraction
-        result_file.write(**results)#save
+        result_file.write(**results,**PARAMETERS)#save
         if not args.no_detail:
             save_agents(simu,args.output_folder,*particular_files)
     d.quit()
