@@ -1,5 +1,5 @@
 
-import CircleNet.core as cor
+import MinimalTransSim.core as cor
 
 # the algo module (detailed)
 class MatchingPlatform:
@@ -11,9 +11,10 @@ class MatchingPlatform:
     
     NEED: "Driver" & "Passenger":
         print(Driver.attributes), print(Passenger.attributes)"""
-    def __init__(self,benefits_function,simu):
+    def __init__(self,benefits_function,incentive,simu):
         self.passengerList={}
         self.benefits=benefits_function
+        self.incentive=incentive
         self.simulation=simu
         self.count=0# for optimization: we store a count so when we want to look again we know from where we start
     def addPassenger(self,agent,lastDeparture,origin,destination):
@@ -32,7 +33,7 @@ class MatchingPlatform:
         return out,self.count
     def sendAnnounce(self,agent,info):
         """set the information send to a driver when a coherent passenger is found"""
-        bene=self.benefits(info["O"],info["D"],self.simulation.network)
+        bene=self.benefits(info["O"],info["D"],self.simulation.network)+self.incentive
         return (agent,{"O":info["O"],"D":info["D"],"b":bene})
     def retreivePassenger(self,agent):
         """delete an announce when accepted or obsolete"""

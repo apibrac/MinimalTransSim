@@ -17,11 +17,11 @@ extract_result_data(s)
 otherwise the extraction/observation function should be re implemented manually (way more easy)
 """
 
-import CircleNet.shape as sh
-import CircleNet.core as cor
-import CircleNet.draws
-from CircleNet.shanghai_platform import Driver, Passenger, MatchingPlatform
-from CircleNet.animation import format_time, Displayer,Drawing_from_simulation
+import MinimalTransSim.shape as sh
+import MinimalTransSim.core as cor
+import MinimalTransSim.draws
+from MinimalTransSim.shanghai_platform import Driver, Passenger, MatchingPlatform
+from MinimalTransSim.animation import format_time, Displayer,Drawing_from_simulation
 
 # FOR ANIMATION :
 
@@ -151,7 +151,7 @@ def extract_result_data(simu,parameters={}):#data already gather parameters
 #SIMULATION CREATOR
 def create_simulation(speed,radius,end,first_watching_before_first_departure,window_size_of_departure,
                        time_elasticity,fuel_cost,watching_repetition_average,watching_repetition_variance,
-                      time_perception_average,time_perception_variance,publishing_advance,benefits,N_driver,N_passenger):
+                      time_perception_average,time_perception_variance,publishing_advance,benefits,N_driver,N_passenger, incentive):
     #random functions
     watching_repetition=sh.get_log_normal(watching_repetition_average,watching_repetition_variance)
     time_perception=sh.get_log_normal(time_perception_average,time_perception_variance)
@@ -179,7 +179,7 @@ def create_simulation(speed,radius,end,first_watching_before_first_departure,win
     N=sh.circle(radius,speed)
     T=sh.Timer(end)
     simu=cor.Simulation(N,T)
-    simu.matchingAlgo=MatchingPlatform(benefits,simu)
+    simu.matchingAlgo=MatchingPlatform(benefits,incentive,simu)
     for i in range(N_driver):
         simu.add(SimpleDriver(simu))
     for i in range(N_passenger):

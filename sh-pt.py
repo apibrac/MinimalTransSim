@@ -1,12 +1,12 @@
-"""jkkj"""
+"""Script for the execution of simulations using the 'shanghai_platform' matching system and a config.py type of parameters file."""
 
 
 import argparse
 import os
 import sys
-from CircleNet.execution import get_parameters,Write_csv, save_agents
-from CircleNet.shanghai_platform_extension import *
-from CircleNet.core import get_id
+from MinimalTransSim.execution import get_parameters,Write_csv, save_agents
+from MinimalTransSim.shanghai_platform_extension import *
+from MinimalTransSim.core import get_id
 
 
 
@@ -47,21 +47,24 @@ else:
                  
 #execution                 
 for config in configurations:
-    parameter_file=__import__(config)#parameter
-    d=Simu_counter(config)#displayer
-    d.start()
-    name=args.output_folder
-    name+= config+".csv" if args.folder else "{}_{}.csv".format(get_id(),"general")
-    parameter_list,variable_names=get_parameters(parameter_file)
-    result_file=Write_csv(name,general_data_to_save+variable_names)#results
-    for PARAMETERS,message in parameter_list():
-        d.new_sim(message)#update message in displayer
-        simu=create_simulation(**PARAMETERS)#creation
-        simu.set_action(lambda x: d.change(x.time))
-        simu()#execution
-        results=extract_result_data(simu)#extraction
-        result_file.write(**results,**PARAMETERS)#save
-        if not args.no_detail:
-            save_agents(simu,args.output_folder,*particular_files)
-    d.quit()
-    d.join()
+    try:
+        parameter_file=__import__(config)#parameter
+        d=Simu_counter(config)#displayer
+        d.start()
+        name=args.output_folder
+        name+= config+".csv" if args.folder else "{}_{}.csv".format(get_id(),"general")
+        parameter_list,variable_names=get_parameters(parameter_file)
+        result_file=Write_csv(name,general_data_to_save+variable_names)#results
+        for PARAMETERS,message in parameter_list():
+            d.new_sim(message)#update message in displayer
+            simu=create_simulation(**PARAMETERS)#creation
+            simu.set_action(lambda x: d.change(x.time))
+            simu()#execution
+            results=extract_result_data(simu)#extraction
+            result_file.write(**results,**PARAMETERS)#save
+            if not args.no_detail:
+                save_agents(simu,args.output_folder,*particular_files)
+        d.quit()
+        d.join()
+    except Exception as e:
+        print(type(e).__name__," for the file '",config, "': ",e )
