@@ -75,10 +75,10 @@ def Positions_drawing(simu):
 # FOR ROUTE PLOT
 def plot_routes(simu):
     P=driver_matched_route_extraction(simu)
-    CircleNet.draws.plot_trajectories(P)
+    MinimalTransSim.draws.plot_trajectories(P)
 def plot_relative_routes(simu,cm=(1,0.2,0),cM=(0,0.2,1)):
     P=list(driver_matched_route_extraction(simu))
-    CircleNet.draws.plot_relative_trajectories(P,cm,cM)
+    MinimalTransSim.draws.plot_relative_trajectories(P,cm,cM)
     
     
 

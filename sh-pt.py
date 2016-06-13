@@ -21,7 +21,7 @@ detail.add_argument("-n","--no_detail",help="output files for each simulation wo
 detail.add_argument("-on",help="to force the details",action="store_true")
 args=parser.parse_args()
 
-
+print(type(args))
 
 
 #define the options and the configuration list with the names of parameters files:
