@@ -1,6 +1,7 @@
 .ipynb_checkpoints/
 __pycache__/
-data/
+data/*
+!data/example/
 docs_perso/
 dustbin/
 desktop.ini

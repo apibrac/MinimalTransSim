@@ -4,6 +4,7 @@
 import argparse
 import os
 import sys
+from importlib import import_module
 from MinimalTransSim.execution import get_parameters,Write_csv, save_agents
 from MinimalTransSim.shanghai_platform_extension import *
 from MinimalTransSim.core import get_id
@@ -21,7 +22,6 @@ parser.add_argument("-f","--folder",help="""ALL NIGHT MODE: entire folder of par
 detail.add_argument("-on",help="force the details when -f is activated",action="store_true")
 args=parser.parse_args()
 
-print(type(args))
 
 
 #define the options and the configuration list with the names of parameters files:
@@ -48,7 +48,7 @@ else:#one file of parameter
 #execution                 
 for config in configurations:#each file of parameters
     try:
-        parameter_file=__import__(config)#parameter
+        parameter_file=import_module(config.replace('/','.'))#load the parameters, please note the use of import_module from importlib to avoid the top level reference used by __import__
         d=Simu_counter(config)#cretation of the displaying window
         d.start()
         name=args.output_folder#preparation of output files
