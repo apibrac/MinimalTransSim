@@ -1,3 +1,4 @@
+"""Module that implements a transportation system inspired by Didi in Shanghai"""
 
 import MinimalTransSim.core as cor
 

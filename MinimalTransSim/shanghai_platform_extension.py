@@ -1,4 +1,7 @@
-"""drawing elements for a simulation of type CircleNet.shanghai_platform
+"""import, parameterize and organise a simulation using MinimalTransSim.shanghai_platform
+
+
+For differnet draws :
 
 if s of type Simulation, execute:
 -for an animation:

@@ -1,4 +1,4 @@
-"""gather all functions for execution of a simulation (managemenet of parameters, writing files...)"""
+"""Gather all functions to manage the execution of a simulation (management of parameters, write files...)"""
 
 
 
@@ -7,6 +7,11 @@
 
 #PARAMETERS READER
 def extract(module):
+    """extract all parameters of python file
+    they are kept in two dictionaries
+        - static with all normal parameters
+        - variable with all parameters in Vector Mode (precede by V and with a list of values for the same parameter)
+    """
     static={}
     variable={}
     for key in module.__dir__():
@@ -17,17 +22,23 @@ def extract(module):
                 static[key]=module.__dict__[key]
     return static,variable
 def get_parameter_sets(message,static,**variable):
-    if not variable:#everything is static
+    """Generator that send one by one a complete set of parameter by chosing one value for each parameter in Vector Mode
+    The message is a string with the current chosen value of all paramaters in Vector Mode, it is used to track what is the current simulation
+    This function use a recursion (chose the value for one parameter, says it is static and call the same function with one less variable parameter
+    """
+    if not variable:#everything is static, we just send the list of parameters
         yield static,message
         raise StopIteration
-    key,new_variable = variable.popitem()# new_variable is the list of values that key should take
+    key,new_variable = variable.popitem()# we pop one parameter (key) and this function choose the value for it. new_variable is the list of these values
     for value in new_variable:
-        static[key]=value
-        submessage=message+str(key)+"="+str(value)+" "
-        for out in get_parameter_sets(submessage,static,**variable):
-            #send all outputs generated from variable that stay with the current value of key
-            yield out           
+        static[key]=value#key is static for the recursion
+        submessage=message+str(key)+"="+str(value)+" "#we create the lower level message
+        for out in get_parameter_sets(submessage,static,**variable):#call the recursion (it is a generator so we use all the results it sends)
+            yield out#and we send it up   
 def get_parameters(module_name):
+    """Function gathering the two former
+    Prepare the recursion of get_parameter_sets
+    """
     s,v=extract(module_name)
     def output():
         return get_parameter_sets("",s,**v)
@@ -38,6 +49,10 @@ def get_parameters(module_name):
 
 #FILE WRITTERS
 class Write_csv():
+    """Write a csv file from its name and the different keys to save
+    For each new line, write is called with any parameter,
+        the ones that corresponds to a good key are selected and write in the correct place
+    """
     def __init__(self,name,keys_to_save):
         self.file_name=name
         self.the_string="{"+"},{".join(keys_to_save)+"}\n"
@@ -74,7 +89,9 @@ def extract_info(agent, attributes_list, options_name={}):
             out[options_name[key]]=l
     return out
 def save_agents(simu,path,*files_info):
-    """every file in files_info is a dictionnary
+    """save all agents of simu in different files depending on their selection_function (that selected the interesting agents) and the info needed
+    
+    every file in files_info is a dictionnary
         file[name] -> name of the output file (preceded by {id}_)
         file[selection_function] -> send true for all agents concerned by this file
         file[info_list] -> list of info to store

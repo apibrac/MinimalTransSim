@@ -113,6 +113,9 @@ def circle(R, basic_speed):
    
     
 def get_log_normal(average,variance):
+    """return a function that create random number following a lognormal law with the precised average and variance
+    (they are the average and variance of the obtain distribution, not the ones of the normal distribution that is used to create the lognormal distribution, as numpy does, see documentation)
+    """
     sigma=np.log(1+(variance/average)**2)
     mu=np.log(average)-sigma**2/2
     sigma=np.sqrt(sigma)

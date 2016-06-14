@@ -1,5 +1,5 @@
 # -*-coding:Latin-1 -*
-"""System, shouldn't be changed for simulations"""
+"""Core of the system, shouldn't be changed for simulations"""
 
 
 

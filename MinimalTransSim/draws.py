@@ -1,4 +1,6 @@
-"""functions for all kind of draws in 2D"""
+"""functions for different draws in 2D
+For now only plots of trajectories are implemented
+"""
 
 
 import matplotlib.pyplot as plt

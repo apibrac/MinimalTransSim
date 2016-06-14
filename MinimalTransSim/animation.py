@@ -1,5 +1,8 @@
 # -*-coding:Latin-1 -*
-"""drawing object to create animations from the simulation"""
+"""Drawing objects to create animations from the simulation
+    The first is optional, mainly used in the jupyter notebooks.
+    The second is used to create the displaying window that show the progress of a simulation.
+    """
 
 
 
@@ -25,6 +28,8 @@ def format_time(t):#in seconds
 class Drawing():
     def __init__(self,Xsize,Ysize,network,end,function_objects,function_update,**kargs):
         """
+        Loop an animation of the whole simulated network.
+        
         Xsize,Ysize - > maximum of network
         network - > patch of the network's surface
         end - > finishing time
@@ -67,6 +72,7 @@ class Drawing():
             return tuple(ob+[time_text])
         return function_out
     def __call__(self):
+        """call the object to draw the figure"""
         ### set the figure
         X=self.X
         Y=self.Y
@@ -95,7 +101,9 @@ class Drawing():
 
 #simple creator
 def Drawing_from_simulation(s,o,u):#s is a simulation object
-    """s= simulation - > object from system.py
+    """Creta a typical animation from a simulation
+    
+        s= simulation - > object from system.py
         o=function_objects - > take ax and return a LIST of drawing objects built with ax
             example :
             def create_objects(ax):

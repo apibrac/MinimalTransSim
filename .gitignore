@@ -1,6 +1,6 @@
-Images/
 .ipynb_checkpoints/
 __pycache__/
-dust_bin/
-desktop.ini
 data/
+docs_perso/
+dustbin/
+desktop.ini
