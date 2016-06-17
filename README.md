@@ -2,6 +2,8 @@
 
 Platform for minimalist simulations of dynamic transportation systems in a city. Network, drivers and clients are modelled in the simplest way in order to draw mathematical properties inherent to the matching system functionment.
 
+Project developed in the partnership of SHANGHAI JIAO TONG UNIVERSITY, China, and the LITRANS lab of POLYTECHNIQUE MONTREAL, Canada.
+
 ## Intro
 
 The purpose of the tool is to model dynamic transportation systems (systems that involve a matching process between cars and passengers, making the car unavailable for other users).
